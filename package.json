@@ -22,7 +22,10 @@
     "vscode": "^1.18.x"
   },
   "categories": [
-    "Other"
+    "Snippets", "Other"
+  ],
+  "keywords": [
+    "markdown", "commonmark", "dfm", "docfx"
   ],
   "activationEvents": [
     "onCommand:markdocs.showPreview",
@@ -51,7 +54,13 @@
           "when": "editorTextFocus"
         }
       ]
-    }
+    },
+    "snippets": [
+      {
+        "language": "markdown",
+        "path": "./snippets/dfm.json"
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
