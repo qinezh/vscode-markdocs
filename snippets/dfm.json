@@ -1,13 +1,13 @@
 {
-	"Insert file inclusion": {
+    "Insert file inclusion": {
         "prefix": "inclusion",
         "body": "[!include [${1:title}](${2:path})]\n",
-	"description": "Insert file inclusion"
+        "description": "Insert file inclusion"
     },
     "Insert code snippet": {
         "prefix": "code",
         "body": "[!code-${1:language}[${2:name}](${3:path})]\n",
-	"description": "Insert code snippet"        
+        "description": "Insert code snippet"
     },
     "Insert note block": {
         "prefix": "note",
@@ -17,7 +17,7 @@
             "> ",
             "\n"
         ],
-	"description": "Insert note block"        
+        "description": "Insert note block"
     },
     "Insert warning block": {
         "prefix": "warning",
@@ -27,7 +27,7 @@
             "> ",
             "\n"
         ],
-	"description": "Insert warning block"        
+        "description": "Insert warning block"
     },
     "Insert tip block": {
         "prefix": "tip",
@@ -37,7 +37,7 @@
             "> ",
             "\n"
         ],
-	"description": "Insert tip block"        
+        "description": "Insert tip block"
     },
     "Insert important block": {
         "prefix": "important",
@@ -47,7 +47,7 @@
             "> ",
             "\n"
         ],
-	"description": "Insert important block"        
+        "description": "Insert important block"
     },
     "Insert caution block": {
         "prefix": "CAUTION",
@@ -57,7 +57,7 @@
             "> ",
             "\n"
         ],
-	"description": "Insert caution block"        
+        "description": "Insert caution block"
     },
     "Insert tabbed content": {
         "prefix": "tabbed",
@@ -68,6 +68,20 @@
             "${6:tab content}",
             "***"
         ],
-	"description": "Insert tabbed content"        
+        "description": "Insert tabbed content"
+    },
+    "Insert row extension": {
+        "prefix": "row",
+        "body": [
+            ":::row:::",
+            "    :::column:::",
+            "        ${1:content}",
+            "    :::column-end:::",
+            "    :::column:::",
+            "        ${2:content}",
+            "    :::column-end:::",
+            ":::row-end:::"
+        ],
+        "description": "Insert row extension"
     }
 }
