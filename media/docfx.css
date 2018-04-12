@@ -81,14 +81,8 @@
 .row {
 	width: 100%;
 	display: flex;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	margin-top: 12px;
-}
-
-@media only screen and (min-width: 925px) {
-	.row {
-		flex-wrap: nowrap;
-	}
 }
 
 .row .column {
@@ -101,30 +95,4 @@
 .row .column > * {
 	max-width: 100%;
 	width: 100%;
-}
-
-@media only screen and (min-width: 925px) {
-	.row .column {
-		flex-basis: calc(25% - 8px);
-		flex-grow: 1;
-		flex-shrink: 1;
-		margin-right: 12px;
-	}
-
-	.row .column:last-child {
-		margin-right: 0;
-	}
-
-	.row .column.span2 {
-		width: 50%;
-		flex-grow: 2;
-		flex-shrink: 1;
-		flex-basis: 50%;
-	}
-
-	.row .column.span3 {
-		flex-shrink: 1;
-		flex-grow: 3;
-		flex-basis: 75%;
-	}
 }
