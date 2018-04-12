@@ -1,4 +1,5 @@
 # markdocs
+[![Current Version](https://vsmarketplacebadge.apphb.com/version/qezhu.markdocs.svg)](https://marketplace.visualstudio.com/items?itemName=qezhu.markdocs)
 
 Markdown preview tool that supports docfx flavored markdown and CommonMark syntax.
 
