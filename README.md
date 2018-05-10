@@ -55,3 +55,9 @@ Press `F1`, type `ext install markdocs`
        :::column-end:::
     :::row-end:::
    ```
+
+## To Do List
+- [ ] Enable TypeScript linter
+- [ ] Supports bidirectional scrolling
+- [ ] Guideline to customize CSS
+- [ ] Reduce the size of runtime dependency if dotnet core has already been installed 
