@@ -3,60 +3,60 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as vscode from 'vscode';
-//import TelemetryReporter from 'vscode-extension-telemetry';
-import * as util from './common';
-import { Logger } from './logger';
-import { PackageManager, Status, PackageError } from './packages';
-import { PlatformInformation } from './platform';
+import * as vscode from "vscode";
+// import TelemetryReporter from "vscode-extension-telemetry";
+import * as util from "./common";
+import { Logger } from "./logger";
+import { PackageManager } from "./packageManager";
+import { IStatus, PackageError } from "./packages";
+import { PlatformInformation } from "./platformInforamtion";
 
 /*
  * Class used to download the runtime dependencies of the C# Extension
  */
-export class ExtensionDownloader
-{
+export class ExtensionDownloader {
     public constructor(
         private channel: vscode.OutputChannel,
         private logger: Logger,
-        //private reporter: TelemetryReporter /* optional */,
+        // private reporter: TelemetryReporter /* optional */,
         private packageJSON: any) {
     }
 
     public installRuntimeDependencies(): Promise<boolean> {
-        this.logger.append('Installing markdocs dependencies...');
+        this.logger.append("Installing markdocs dependencies...");
         this.channel.show();
 
-        let statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
-        let status: Status = {
-            setMessage: text => {
+        const statusItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
+        const status: IStatus = {
+            setDetail: (text) => {
+                statusItem.tooltip = text;
+                statusItem.show();
+            },
+            setMessage: (text) => {
                 statusItem.text = text;
                 statusItem.show();
             },
-            setDetail: text => {
-                statusItem.tooltip = text;
-                statusItem.show();
-            }
         };
 
         // Sends "AcquisitionStart" telemetry to indicate an acquisition  started.
-        //if (this.reporter) {
+        // if (this.reporter) {
         //    this.reporter.sendTelemetryEvent("AcquisitionStart");
-        //}
+        // }
 
         let platformInfo: PlatformInformation;
         let packageManager: PackageManager;
-        let installationStage = 'touchBeginFile';
-        let errorMessage = '';
+        let installationStage = "touchBeginFile";
+        let errorMessage = "";
         let success = false;
 
-        let telemetryProps: any = {};
+        const telemetryProps: any = {};
 
         return util.touchInstallFile(util.InstallFileType.Begin)
             .then(() => {
-                installationStage = 'getPlatformInfo';
+                installationStage = "getPlatformInfo";
                 return PlatformInformation.GetCurrent();
             })
-            .then(info => {
+            .then((info) => {
                 platformInfo = info;
                 packageManager = new PackageManager(info, this.packageJSON);
                 this.logger.appendLine();
@@ -65,32 +65,32 @@ export class ExtensionDownloader
                 this.logger.appendLine(`Platform: ${info.toString()}`);
                 this.logger.appendLine();
 
-                installationStage = 'downloadPackages';
+                installationStage = "downloadPackages";
 
                 const config = vscode.workspace.getConfiguration();
-                const proxy = config.get<string>('http.proxy');
-                const strictSSL = config.get('http.proxyStrictSSL', true);
+                const proxy = config.get<string>("http.proxy");
+                const strictSSL = config.get("http.proxyStrictSSL", true);
 
                 return packageManager.DownloadPackages(this.logger, status, proxy, strictSSL);
             })
             .then(() => {
                 this.logger.appendLine();
 
-                installationStage = 'installPackages';
+                installationStage = "installPackages";
                 return packageManager.InstallPackages(this.logger, status);
             })
             .then(() => {
-                installationStage = 'touchLockFile';
+                installationStage = "touchLockFile";
                 return util.touchInstallFile(util.InstallFileType.Lock);
             })
             .then(() => {
-                installationStage = 'completeSuccess';
+                installationStage = "completeSuccess";
                 success = true;
             })
-            .catch(error => {
+            .catch((error) => {
                 if (error instanceof PackageError) {
                     // we can log the message in a PackageError to telemetry as we do not put PII in PackageError messages
-                    telemetryProps['error.message'] = error.message;
+                    telemetryProps["error.message"] = error.message;
 
                     if (error.innerError) {
                         errorMessage = error.innerError.toString();
@@ -99,7 +99,7 @@ export class ExtensionDownloader
                     }
 
                     if (error.pkg) {
-                        telemetryProps['error.packageUrl'] = error.pkg.url;
+                        telemetryProps["error.packageUrl"] = error.pkg.url;
                     }
 
                 } else {
@@ -111,30 +111,30 @@ export class ExtensionDownloader
                 this.logger.appendLine(errorMessage);
             })
             .then(() => {
-                telemetryProps['installStage'] = installationStage;
-                telemetryProps['platform.architecture'] = platformInfo.architecture;
-                telemetryProps['platform.platform'] = platformInfo.platform;
+                telemetryProps.installStage = installationStage;
+                telemetryProps["platform.architecture"] = platformInfo.architecture;
+                telemetryProps["platform.platform"] = platformInfo.platform;
                 if (platformInfo.distribution) {
-                    telemetryProps['platform.distribution'] = platformInfo.distribution.toTelemetryString();
+                    telemetryProps["platform.distribution"] = platformInfo.distribution.toTelemetryString();
                 }
 
-                //if (this.reporter) {
-                //    this.reporter.sendTelemetryEvent('Acquisition', telemetryProps);
-                //}
+                // if (this.reporter) {
+                //    this.reporter.sendTelemetryEvent("Acquisition", telemetryProps);
+                // }
 
                 this.logger.appendLine();
-                installationStage = '';
-                this.logger.appendLine('Finished');
+                installationStage = "";
+                this.logger.appendLine("Finished");
 
                 statusItem.dispose();
             })
             .then(() => {
                 // We do this step at the end so that we clean up the begin file in the case that we hit above catch block
                 // Attach a an empty catch to this so that errors here do not propogate
-                return util.deleteInstallFile(util.InstallFileType.Begin).catch((error) => { });
+                return util.deleteInstallFile(util.InstallFileType.Begin).catch((error) => { /* tslint:disable:no-empty */ });
             }).then(() => {
                 return success;
             });
-        
+
     }
 }

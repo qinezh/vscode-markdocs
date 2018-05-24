@@ -3,20 +3,20 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import * as cp from 'child_process';
-import * as fs from 'fs';
-import * as os from 'os';
-import * as path from 'path';
+import * as cp from "child_process";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 
 let extensionPath: string;
 
-export function setExtensionPath(path: string) {
-    extensionPath = path;
+export function setExtensionPath(p: string) {
+    extensionPath = p;
 }
 
 export function getExtensionPath() {
     if (!extensionPath) {
-        throw new Error('Failed to set extension path');
+        throw new Error("Failed to set extension path");
     }
 
     return extensionPath;
@@ -46,11 +46,9 @@ export function execChildProcess(command: string, workingDirectory: string = get
         cp.exec(command, { cwd: workingDirectory, maxBuffer: 500 * 1024 }, (error, stdout, stderr) => {
             if (error) {
                 reject(error);
-            }
-            else if (stderr && stderr.length > 0) {
+            } else if (stderr && stderr.length > 0) {
                 reject(new Error(stderr));
-            }
-            else {
+            } else {
                 resolve(stdout);
             }
         });
@@ -59,8 +57,7 @@ export function execChildProcess(command: string, workingDirectory: string = get
 
 export function getUnixChildProcessIds(pid: number): Promise<number[]> {
     return new Promise<number[]>((resolve, reject) => {
-        let ps = cp.exec('ps -A -o ppid,pid', (error, stdout, stderr) =>
-        {
+        const ps = cp.exec("ps -A -o ppid,pid", (error, stdout, stderr) => {
             if (error) {
                 return reject(error);
             }
@@ -73,22 +70,22 @@ export function getUnixChildProcessIds(pid: number): Promise<number[]> {
                 return resolve([]);
             }
 
-            let lines = stdout.split(os.EOL);
-            let pairs = lines.map(line => line.trim().split(/\s+/));
+            const lines = stdout.split(os.EOL);
+            const pairs = lines.map((line) => line.trim().split(/\s+/));
 
-            let children = [];
+            const children = [];
 
-            for (let pair of pairs) {
-                let ppid = parseInt(pair[0]);
+            for (const pair of pairs) {
+                const ppid = parseInt(pair[0], 10);
                 if (ppid === pid) {
-                    children.push(parseInt(pair[1]));
+                    children.push(parseInt(pair[1], 10));
                 }
             }
 
             resolve(children);
         });
 
-        ps.on('error', reject);
+        ps.on("error", reject);
     });
 }
 
@@ -97,8 +94,7 @@ export function fileExists(filePath: string): Promise<boolean> {
         fs.stat(filePath, (err, stats) => {
             if (stats && stats.isFile()) {
                 resolve(true);
-            }
-            else {
+            } else {
                 resolve(false);
             }
         });
@@ -107,30 +103,30 @@ export function fileExists(filePath: string): Promise<boolean> {
 
 export function deleteIfExists(filePath: string): Promise<void> {
     return fileExists(filePath)
-    .then((exists: boolean) => {
-        return new Promise<void>((resolve, reject) => {
-            if (!exists) {
-                return resolve();
-            }
-
-            fs.unlink(filePath, err => {
-                if (err) {
-                    return reject(err);
+        .then((exists: boolean) => {
+            return new Promise<void>((resolve, reject) => {
+                if (!exists) {
+                    return resolve();
                 }
 
-                resolve();
+                fs.unlink(filePath, (err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+
+                    resolve();
+                });
             });
         });
-    });
 }
 
 export enum InstallFileType {
     Begin,
-    Lock
+    Lock,
 }
 
 function getInstallFilePath(type: InstallFileType): string {
-    let installFile = 'install.' + InstallFileType[type];
+    const installFile = "install." + InstallFileType[type];
     return path.resolve(getExtensionPath(), installFile);
 }
 
@@ -140,7 +136,7 @@ export function installFileExists(type: InstallFileType): Promise<boolean> {
 
 export function touchInstallFile(type: InstallFileType): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.writeFile(getInstallFilePath(type), '', err => {
+        fs.writeFile(getInstallFilePath(type), "", (err) => {
             if (err) {
                 reject(err);
                 return;
@@ -153,7 +149,7 @@ export function touchInstallFile(type: InstallFileType): Promise<void> {
 
 export function deleteInstallFile(type: InstallFileType): Promise<void> {
     return new Promise<void>((resolve, reject) => {
-        fs.unlink(getInstallFilePath(type), err => {
+        fs.unlink(getInstallFilePath(type), (err) => {
             if (err) {
                 reject(err);
                 return;
@@ -165,15 +161,15 @@ export function deleteInstallFile(type: InstallFileType): Promise<void> {
 }
 
 export function convertNativePathToPosix(pathString: string): string {
-    let parts = pathString.split(path.sep);
+    const parts = pathString.split(path.sep);
     return parts.join(path.posix.sep);
 }
 
 /**
  * This function checks to see if a subfolder is part of folder.
- * 
+ *
  * Assumes subfolder and folder are absolute paths and have consistent casing.
- * 
+ *
  * @param subfolder subfolder to check if it is part of the folder parameter
  * @param folder folder to check aganist
  */

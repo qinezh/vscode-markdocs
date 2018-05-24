@@ -1,11 +1,11 @@
-import * as vscode from 'vscode';
-import MarkdownPreviewConfig from './markdownPreviewConfig';
+import * as vscode from "vscode";
+import MarkdownPreviewConfig from "./markdownPreviewConfig";
 
 export default class PreviewConfigManager {
     private previewConfigurationsForWorkspaces = new Map<string, MarkdownPreviewConfig>();
 
     public loadAndCacheConfiguration(
-        resource: vscode.Uri
+        resource: vscode.Uri,
     ) {
         const config = MarkdownPreviewConfig.getConfigForResource(resource);
         this.previewConfigurationsForWorkspaces.set(this.getKey(resource), config);
@@ -13,7 +13,7 @@ export default class PreviewConfigManager {
     }
 
     public shouldUpdateConfiguration(
-        resource: vscode.Uri
+        resource: vscode.Uri,
     ): boolean {
         const key = this.getKey(resource);
         const currentConfig = this.previewConfigurationsForWorkspaces.get(key);
@@ -22,11 +22,11 @@ export default class PreviewConfigManager {
     }
 
     private getKey(
-        resource: vscode.Uri
+        resource: vscode.Uri,
     ): string {
         const folder = vscode.workspace.getWorkspaceFolder(resource);
         if (!folder) {
-            return '';
+            return "";
         }
         return folder.uri.toString();
     }

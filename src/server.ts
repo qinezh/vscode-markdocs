@@ -1,21 +1,21 @@
+import * as childProcess from "child_process";
+import * as fs from "fs";
+import * as path from "path";
 import {
     Extension,
     ExtensionContext,
     OutputChannel,
+    window,
     workspace,
-    window
-} from 'vscode';
-import * as fs from 'fs';
-import * as path from 'path';
-import * as childProcess from 'child_process';
-import * as util from './util/common';
-import { Logger } from './util/logger';
-import { HttpClient } from './httpClient';
-import { ExtensionDownloader } from './util/ExtensionDownloader';
+} from "vscode";
+import { HttpClient } from "./httpClient";
+import * as util from "./util/common";
+import { ExtensionDownloader } from "./util/ExtensionDownloader";
+import { Logger } from "./util/logger";
 
 export class MarkdocsServer {
-    private _spawn: childProcess.ChildProcess;
-    private _started: boolean = false;
+    private spawnProcess: childProcess.ChildProcess;
+    private started: boolean = false;
     private readonly serverPath;
     private context: ExtensionContext;
 
@@ -25,7 +25,7 @@ export class MarkdocsServer {
 
     public ensureRuntimeDependencies(extension: Extension<any>, channel: OutputChannel, logger: Logger): Promise<boolean> {
         return util.installFileExists(util.InstallFileType.Lock)
-            .then(exists => {
+            .then((exists) => {
                 if (!exists) {
                     const downloader = new ExtensionDownloader(channel, logger, extension.packageJSON);
                     return downloader.installRuntimeDependencies();
@@ -48,27 +48,30 @@ export class MarkdocsServer {
         }
 
         try {
-            this._spawn = this.spawn(serverPath, {});
-        }
-        catch (err) {
+            this.spawnProcess = this.spawn(serverPath, {});
+        } catch (err) {
             window.showErrorMessage(`[Markdocs Error]: ${err}`);
             return;
         }
 
-        if (!this._spawn.pid) {
+        if (!this.spawnProcess.pid) {
             window.showErrorMessage(`[Markdocs Error] Error occurs while spawning markdocs local server.`);
             return;
         }
 
-        this._spawn.stdout.on("data", data => {
-            this._started = false;
+        this.spawnProcess.stdout.on("data", (data) => {
+            this.started = false;
         });
 
-        this._spawn.stderr.on("data", data => {
+        this.spawnProcess.stderr.on("data", (data) => {
             window.showErrorMessage(`[Markdocs Server Error]: ${data.toString()}`);
         });
 
         await this.ensureMarkdocsServerWorkAsync();
+    }
+
+    public stopMarkdocsServer() {
+        this.spawnProcess.kill();
     }
 
     private async ensureMarkdocsServerWorkAsync(): Promise<void> {
@@ -91,12 +94,8 @@ export class MarkdocsServer {
         }
     }
 
-    public stopMarkdocsServer() {
-        this._spawn.kill();
-    }
-
     private async sleepAsync(ms: number) {
-        return Promise.resolve(resolve => {
+        return Promise.resolve((resolve) => {
             setTimeout(() => {
                 resolve();
             }, ms);
@@ -106,7 +105,7 @@ export class MarkdocsServer {
     private getServerPath() {
         const serverPaths = [
             ".markdocs/MarkdocsService.exe",
-            ".markdocs/MarkdocsService"
+            ".markdocs/MarkdocsService",
         ];
 
         for (let p of serverPaths) {
@@ -118,19 +117,19 @@ export class MarkdocsServer {
     }
 
     private spawn(command: string, options): childProcess.ChildProcess {
-        let file, args;
-        if (process.platform === 'win32') {
-            file = 'cmd.exe';
+        let file;
+        let args;
+        if (process.platform === "win32") {
+            file = "cmd.exe";
             // execute chcp 65001 to make sure console's code page supports UTF8
             // https://github.com/nodejs/node-v0.x-archive/issues/2190
-            args = ['/s', '/c', '"chcp 65001 >NUL & ' + command + '"'];
+            args = ["/s", "/c", '"chcp 65001 >NUL & ' + command + '"'];
             options = Object.assign({}, options);
             options.windowsVerbatimArguments = true;
-        }
-        else {
-            file = '/bin/sh';
-            args = ['-c', command];
+        } else {
+            file = "/bin/sh";
+            args = ["-c", command];
         }
         return childProcess.spawn(file, args, options);
-    };
+    }
 }
