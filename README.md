@@ -1,5 +1,6 @@
 # markdocs
-[![Current Version](https://vsmarketplacebadge.apphb.com/version/qezhu.markdocs.svg)](https://marketplace.visualstudio.com/items?itemName=qezhu.markdocs)
+
+**[Deprecated]**: this repo has been moved to https://github.com/Microsoft/vscode-docs-authoring/tree/master/docs-preview, and please install it from: https://marketplace.visualstudio.com/items?itemName=docsmsft.docs-preview
 
 Markdown preview tool that supports docfx flavored markdown and CommonMark syntax.
 
